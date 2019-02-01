@@ -46,15 +46,32 @@ const (
 	DefaultMaxIdleConnsPerHost = 64
 )
 
-// NewTransport instantiates a new Transport with the default Algolia hosts to
+// NewDefaultTransport instantiates a new Transport with the default Algolia hosts to
 // connect to.
-func NewTransport(appID, apiKey string) *Transport {
-	return NewTransportWithHosts(appID, apiKey, nil)
+func NewDefaultTransport(appID, apiKey string) *Transport {
+	return NewTransport(appID, apiKey, nil, nil)
 }
 
-// NewTransport instantiates a new Transport with the specificed hosts as main
+// NewTransportWithHosts instantiates a new Transport with the specificed hosts as main
 // servers to connect to.
 func NewTransportWithHosts(appID, apiKey string, hosts []string) *Transport {
+	return NewTransport(appID, apiKey, hosts)
+}
+
+// NewTransportWithProxy instantiates a new Transport with a specificed proxy
+// and the default Algolia hosts to connect to.
+func NewTransportWithProxy(appID, apiKey string, proxy func(req *http.Request) (*url.URL, error)) *Transport {
+	return NewTransport(appID, apiKey, nil, proxy)
+}
+
+// NewTransport instantiates a new Transport
+// with a specificed proxy
+// and the specificed hosts as main servers to connect to.
+func NewTransport(appID, apiKey string, hosts []string, proxy func(req *http.Request) (*url.URL, error)) *Transport {
+	if proxy == nil {
+		proxy = http.ProxyFromEnvironment
+	}
+
 	return &Transport{
 		headers: map[string]string{
 			"Connection":               "keep-alive",
@@ -70,7 +87,7 @@ func NewTransportWithHosts(appID, apiKey string, hosts []string) *Transport {
 				}).Dial,
 				DisableKeepAlives:   false,
 				MaxIdleConnsPerHost: DefaultMaxIdleConnsPerHost,
-				Proxy:               http.ProxyFromEnvironment,
+				Proxy:               proxy,
 				TLSHandshakeTimeout: DefaultConnectTimeout,
 			},
 		},

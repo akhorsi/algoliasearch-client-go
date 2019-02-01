@@ -19,7 +19,17 @@ type client struct {
 func NewClient(appID, apiKey string) Client {
 	return &client{
 		appID:     appID,
-		transport: NewTransport(appID, apiKey),
+		transport: NewDefaultTransport(appID, apiKey),
+	}
+}
+
+// NewClient instantiates a new `Client` from the provided `appID` and
+// `apiKey`. The transport layers are initialized with the given proxy
+// Default hosts are used for the transport layer.
+func NewClientWithProxy(appID, apiKey string, proxy func(req *http.Request) (*url.URL, error)) Client {
+	return &client{
+		appID:     appID,
+		transport: NewTransportWithProxy(appID, apiKey, proxy),
 	}
 }
 

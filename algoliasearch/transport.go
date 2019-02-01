@@ -55,7 +55,7 @@ func NewDefaultTransport(appID, apiKey string) *Transport {
 // NewTransportWithHosts instantiates a new Transport with the specificed hosts as main
 // servers to connect to.
 func NewTransportWithHosts(appID, apiKey string, hosts []string) *Transport {
-	return NewTransport(appID, apiKey, hosts)
+	return NewTransport(appID, apiKey, hosts, nil)
 }
 
 // NewTransportWithProxy instantiates a new Transport with a specificed proxy
